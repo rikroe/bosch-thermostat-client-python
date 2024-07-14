@@ -31,7 +31,7 @@ from bosch_thermostat_client.const import (
     CRAWL_SENSORS,
     SWITCHES,
 )
-from bosch_thermostat_client.db import get_custom_db, get_db_of_firmware, get_initial_db
+from bosch_thermostat_client.db import get_custom_db, get_db_of_firmware, get_initial_db, async_get_errors
 from bosch_thermostat_client.exceptions import (
     DeviceException,
     FirmwareException,
@@ -49,6 +49,9 @@ _LOGGER = logging.getLogger(__name__)
 class BaseGateway:
     """Base Gateway class."""
 
+    device_type: str
+    circuit_types: dict[str, str]
+
     def __init__(self, host):
         """BaseGateway constructor
 
@@ -63,6 +66,7 @@ class BaseGateway:
         self._initialized = None
         self.initialization_msg = None
         self._bus_type = None
+        self_errors = None
 
     async def get_base_db(self):
         return await get_initial_db(self.device_type)
@@ -82,6 +86,7 @@ class BaseGateway:
                 )
                 initial_db.pop(MODELS, None)
                 self._db.update(initial_db)
+                self._errors = await async_get_errors(self.device_type)
                 self._initialized = True
                 return
             raise FirmwareException(
@@ -273,7 +278,7 @@ class BaseGateway:
         """Initialize sensors objects."""
         if SENSORS in self._db:
             self._data[SENSORS] = Sensors(
-                connector=self._connector, sensors_db=self._db[SENSORS]
+                connector=self._connector, sensors_db=self._db[SENSORS], errors=self._errors
             )
         if CRAWL_SENSORS in self._db:
             _LOGGER.info("Initializing Crawl Sensors.")

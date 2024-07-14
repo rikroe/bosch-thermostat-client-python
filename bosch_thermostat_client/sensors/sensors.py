@@ -60,7 +60,7 @@ class Sensors(BoschEntities):
     """Sensors object containing multiple Sensor objects."""
 
     def __init__(
-        self, connector, sensors_db={}, uri_prefix=None, data=None, parent=None
+        self, connector, sensors_db: dict | None = None, uri_prefix=None, data=None, parent=None, errors: dict | None = None
     ):
         """
         Initialize sensors.
@@ -71,7 +71,7 @@ class Sensors(BoschEntities):
         super().__init__(connector.get)
         self._items = {}
 
-        for sensor_id, sensor in sensors_db.items():
+        for sensor_id, sensor in (sensors_db or {}).items():
             if sensor_id not in self._items:
                 kwargs = {
                     "connector": connector,
@@ -87,6 +87,8 @@ class Sensors(BoschEntities):
                     "parent": parent,
                     **sensor,
                 }
+                if sensor_id == NOTIFICATIONS and errors:
+                    kwargs["errorcodes"] = errors
                 SensorClass = get_sensor_class(
                     device_type=connector.device_type, sensor_type=sensor_id
                 )

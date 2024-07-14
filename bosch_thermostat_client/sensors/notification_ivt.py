@@ -9,7 +9,15 @@ from bosch_thermostat_client.const import (
 
 
 class NotificationSensor(Sensor):
-    errorcodes = get_nefit_errors() | get_ivt_errors()
+    errorcodes: dict
+
+    def __init__(
+        self,
+        **kwargs,
+    ) -> None:
+        """Notification sensor init."""
+        super().__init__(**kwargs)
+        self.errorcodes = kwargs.get("errorcodes", {})
 
     def process_results(self, result, key=None, return_data=False):
         """Convert multi-level json object to one level object."""

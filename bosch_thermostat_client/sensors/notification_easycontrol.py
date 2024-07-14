@@ -10,7 +10,15 @@ from bosch_thermostat_client.const import (
 
 
 class NotificationSensor(Sensor):
-    errorcodes = get_easycontrol_errors()
+    errorcodes: dict
+
+    def __init__(
+        self,
+        **kwargs,
+    ) -> None:
+        """Notification sensor init."""
+        super().__init__(**kwargs)
+        self.errorcodes = kwargs.get("errorcodes", {})
 
     def get_error_message(self, dcd: str, ccd: str, act: str, fc: str) -> str:
         msg = "Unknown error"

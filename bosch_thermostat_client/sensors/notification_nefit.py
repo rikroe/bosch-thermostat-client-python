@@ -11,7 +11,7 @@ from bosch_thermostat_client.const import (
 
 
 class NotificationSensor(Sensor):
-    errorcodes = get_nefit_errors()
+    errorcodes: dict
     _allowed_types = "notification"
 
     def __init__(
@@ -42,6 +42,7 @@ class NotificationSensor(Sensor):
             attr_id: {RESULT: {}, URI: path, TYPE: kind},
             "cause": {RESULT: {}, URI: cause_uri, TYPE: kind},
         }
+        self.errorcodes = kwargs.get("errorcodes", {})
 
     @property
     def state(self):

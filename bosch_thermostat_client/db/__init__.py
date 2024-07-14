@@ -9,6 +9,7 @@ from bosch_thermostat_client.const import DEFAULT, FIRMWARE_VERSION
 from bosch_thermostat_client.const.nefit import NEFIT
 from bosch_thermostat_client.const.ivt import (
     CAN,
+    IVT,
     NSC_ICOM_GATEWAY,
     RC300_RC200,
     MBLAN,
@@ -86,3 +87,14 @@ def get_nefit_errors() -> dict:
 def get_easycontrol_errors() -> dict:
     """Get error codes of EASYCONTROL devices."""
     return open_json(os.path.join(MAINPATH, "errorcodes_easycontrol.json"))
+
+
+async def async_get_errors(device_type) -> dict:
+    """Get error codes of all devices."""
+    if device_type == EASYCONTROL:
+        return await asyncio.to_thread(get_easycontrol_errors)
+    elif device_type == NEFIT:
+        return await asyncio.to_thread(get_nefit_errors)
+    elif device_type == IVT:
+        return (await asyncio.to_thread(get_nefit_errors)) | (await asyncio.to_thread(get_ivt_errors))
+    return {}
