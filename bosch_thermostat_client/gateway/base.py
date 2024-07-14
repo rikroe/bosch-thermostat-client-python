@@ -66,7 +66,7 @@ class BaseGateway:
         self._initialized = None
         self.initialization_msg = None
         self._bus_type = None
-        self_errors = None
+        self._errors = None
 
     async def get_base_db(self):
         return await get_initial_db(self.device_type)
